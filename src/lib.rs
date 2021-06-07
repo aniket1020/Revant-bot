@@ -70,10 +70,7 @@ impl Drop for ThreadPool
     }
 }
 
-unsafe impl Sync for ThreadPool
-{
-
-}
+unsafe impl Sync for ThreadPool{}
 
 struct Worker
 {

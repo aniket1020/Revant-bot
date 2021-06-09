@@ -5,13 +5,27 @@ use std::sync::{
 };
 use std::thread;
 
-pub struct ThreadPool
+pub struct Result
 {
-    workers:    Vec<Worker>,
-    sender:     mpsc::Sender<Message>,
+    pub runtime         :      f32,
+    pub status          :      Status,
+    pub output          :      String,
 }
 
-type Job = Box<dyn FnOnce(usize) + Send + Sync + 'static>;
+pub enum Status
+{
+    Success,
+    Failure
+}
+
+pub struct ThreadPool
+{
+    workers         :       Vec<Worker>,
+    sender          :       mpsc::Sender<Message>,
+    pub resReceiver     :       mpsc::Receiver<Result>,
+}
+
+type Job = Box<dyn FnOnce(usize,&mpsc::Sender<Result>) + Send + Sync + 'static>;
 
 enum Message
 {
@@ -28,20 +42,23 @@ impl ThreadPool
 
         let mut workers = Vec::with_capacity(size);
 
+        let (resSender, resReceiver) = mpsc::channel();
+
         for id in 0..size
         {
-            workers.push(Worker::new(id,Arc::clone(&receiver)));
+            workers.push(Worker::new(id,Arc::clone(&receiver),resSender.clone()));
         }
 
         ThreadPool
         {
             workers,
-            sender
+            sender,
+            resReceiver
         }
     }
 
     pub fn execute<F>(&self, f:F)
-    where F: FnOnce(usize) + Send + Sync + 'static,
+    where F: FnOnce(usize,&mpsc::Sender<Result>) + Send + Sync + 'static,
     {
         let job = Box::new(f);
         self.sender.send(Message::NewJob(job)).unwrap();
@@ -80,7 +97,7 @@ struct Worker
 
 impl Worker
 {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>) -> Worker
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>, resSender: mpsc::Sender<Result>) -> Worker
     {
         let thread = thread::spawn(move ||
             loop
@@ -91,7 +108,7 @@ impl Worker
                 {
                     Message::NewJob(job) => {
                         println!("Worker {} got a job", id);
-                        job(id);
+                        job(id,&resSender);
                     }
                     Message::Terminate => {
                         println!("Worker {} was told to terminate.", id);

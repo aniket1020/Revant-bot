@@ -53,7 +53,7 @@ pub static LANGRUN: phf::Map<&'static str,(&'static str,&'static str)> = phf_map
     "cpp"       => ("bin"          ,  "solution"   ),
     "c"         => ("bin"          ,  "solution"   ),
     "java"      => ("java"         ,  "Main.java"  ),
-    "python"    => ("python3"      ,  "main.py" ),
+    "python"    => ("python3"      ,  "main.py"    ),
 };
 
 pub struct ShardManagerContainer;

@@ -66,7 +66,7 @@ fn handle_request(id: usize, request_message: String) -> ResResult
         let call_args = call_args[1..].join(" ");
         let command = format!("{} {} {} {} {}", util,filename, flag, output, call_args);
 
-        println!("{}",command);
+        println!("Compiling - {}",command);
 
         fs::write(&filename, v.get(1).unwrap()).expect("Error writing code to file");
 
@@ -81,14 +81,9 @@ fn handle_request(id: usize, request_message: String) -> ResResult
         if exec.stderr.len() > 0 as usize
         {
             let s = String::from_utf8_lossy(&exec.stderr);
-            println!("Cleaning {}",workerdir);
-            let exec = Command::new("ruby")
-                                .arg(clean)
-                                .arg(&workerdir)
-                                .output()
-                                .unwrap_or_else(|e| {
-                                    panic!("{}",e);
-                                });
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Failure, output: s.to_string() });
         }
 
@@ -105,7 +100,7 @@ fn handle_request(id: usize, request_message: String) -> ResResult
             format!("{} {}",util,filename)
         };
 
-        println!("{}",command);
+        println!("Executing - {}",command);
 
         let exec = Command::new("ruby")
                             .arg(run)
@@ -118,27 +113,17 @@ fn handle_request(id: usize, request_message: String) -> ResResult
         if exec.stderr.len() > 0 as usize
         {
             let s = String::from_utf8_lossy(&exec.stderr);
-            println!("Cleaning {}",workerdir);
-            let exec = Command::new("ruby")
-                                .arg(clean)
-                                .arg(&workerdir)
-                                .output()
-                                .unwrap_or_else(|e| {
-                                    panic!("{}",e);
-                                });
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Failure, output: s.to_string() });
         }
         else
         {
             let s = String::from_utf8_lossy(&exec.stdout);
-            println!("Cleaning {}",workerdir);
-            let exec = Command::new("ruby")
-                                .arg(clean)
-                                .arg(&workerdir)
-                                .output()
-                                .unwrap_or_else(|e| {
-                                    panic!("{}",e);
-                                });
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Success, output: s.to_string() });
         }
     }
@@ -159,7 +144,7 @@ fn handle_request(id: usize, request_message: String) -> ResResult
             format!("{} {}",util,filename)
         };
 
-        println!("{}",command);
+        println!("Executing - {}",command);
 
         let exec = Command::new("ruby")
                             .arg(run)
@@ -172,27 +157,17 @@ fn handle_request(id: usize, request_message: String) -> ResResult
         if exec.stderr.len() > 0 as usize
         {
             let s = String::from_utf8_lossy(&exec.stderr);
-            println!("Cleaning {}",workerdir);
-            let exec = Command::new("ruby")
-                                .arg(clean)
-                                .arg(&workerdir)
-                                .output()
-                                .unwrap_or_else(|e| {
-                                    panic!("{}",e);
-                                });
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Failure, output: s.to_string() });
         }
         else
         {
             let s = String::from_utf8_lossy(&exec.stdout);
-            println!("Cleaning {}",workerdir);
-            let exec = Command::new("ruby")
-                                .arg(clean)
-                                .arg(&workerdir)
-                                .output()
-                                .unwrap_or_else(|e| {
-                                    panic!("{}",e);
-                                });
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Success, output: s.to_string() });
         }
     }

@@ -1,4 +1,8 @@
+#![allow(non_snake_case)]
+#![allow(unused_imports)]
+
 extern crate dotenv;
+extern crate phf;
 
 mod commands;
 
@@ -34,7 +38,23 @@ use commands::{
     run::*,
 };
 
+use phf::phf_map;
+
 use revant::ThreadPool;
+
+pub static LANGCMP: phf::Map<&'static str,(&'static str,&'static str,&'static str, &'static str)> = phf_map!
+{
+    "cpp"       => ("clang++"   ,   "main.cpp"  , "-o", "solution"),
+    "c"         => ("clang"     ,   "main.c"    , "-o", "solution"),
+};
+
+pub static LANGRUN: phf::Map<&'static str,(&'static str,&'static str)> = phf_map!
+{
+    "cpp"       => ("bin"          ,  "solution"   ),
+    "c"         => ("bin"          ,  "solution"   ),
+    "java"      => ("java"         ,  "Main.java"  ),
+    "python"    => ("python3"      ,  "main.py" ),
+};
 
 pub struct ShardManagerContainer;
 
@@ -69,11 +89,11 @@ async fn main()
 {
     dotenv().expect(".env not found");
 
-    let subscriber = FmtSubscriber::builder()
-                        .with_env_filter(EnvFilter::from_default_env())
-                        .finish();
-
-    tracing::subscriber::set_global_default(subscriber).expect("Failed to start the logger");
+    // let subscriber = FmtSubscriber::builder()
+    //                     .with_env_filter(EnvFilter::from_default_env())
+    //                     .finish();
+    //
+    // tracing::subscriber::set_global_default(subscriber).expect("Failed to start the logger");
 
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in environment");
 

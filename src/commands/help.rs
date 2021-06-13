@@ -1,3 +1,6 @@
+#![allow(non_snake_case)]
+#![allow(unused_imports)]
+
 use serenity::prelude::*;
 use serenity::model::prelude::*;
 use serenity::framework::standard::{

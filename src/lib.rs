@@ -1,3 +1,6 @@
+#![allow(non_snake_case)]
+#![allow(unused_imports)]
+
 use std::sync::{
         mpsc,
         Arc,
@@ -5,9 +8,14 @@ use std::sync::{
 };
 use std::thread;
 
+pub enum ResResult
+{
+    Result(Result),
+    InvalidCommand
+}
+
 pub struct Result
 {
-    pub runtime         :      f32,
     pub status          :      Status,
     pub output          :      String,
 }
@@ -20,12 +28,12 @@ pub enum Status
 
 pub struct ThreadPool
 {
-    workers         :       Vec<Worker>,
-    sender          :       mpsc::Sender<Message>,
-    pub resReceiver     :       mpsc::Receiver<Result>,
+    workers             :       Vec<Worker>,
+    sender              :       mpsc::Sender<Message>,
+    pub resReceiver     :       mpsc::Receiver<ResResult>,
 }
 
-type Job = Box<dyn FnOnce(usize,&mpsc::Sender<Result>) + Send + Sync + 'static>;
+type Job = Box<dyn FnOnce(usize,&mpsc::Sender<ResResult>) + Send + Sync + 'static>;
 
 enum Message
 {
@@ -58,7 +66,7 @@ impl ThreadPool
     }
 
     pub fn execute<F>(&self, f:F)
-    where F: FnOnce(usize,&mpsc::Sender<Result>) + Send + Sync + 'static,
+    where F: FnOnce(usize,&mpsc::Sender<ResResult>) + Send + Sync + 'static,
     {
         let job = Box::new(f);
         self.sender.send(Message::NewJob(job)).unwrap();
@@ -97,7 +105,7 @@ struct Worker
 
 impl Worker
 {
-    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>, resSender: mpsc::Sender<Result>) -> Worker
+    fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Message>>>, resSender: mpsc::Sender<ResResult>) -> Worker
     {
         let thread = thread::spawn(move ||
             loop

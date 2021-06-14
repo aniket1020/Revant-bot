@@ -118,6 +118,14 @@ fn handle_request(id: usize, request_message: String) -> ResResult
             fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Failure, output: s.to_string() });
         }
+        else if exec.stdout.len() == 0 as usize
+        {
+            println!("Resource Limit Exceeded");
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
+            return ResResult::Result(Result{ status:Status::Failure, output: "Error executing program".to_string() });
+        }
         else
         {
             let s = String::from_utf8_lossy(&exec.stdout);
@@ -161,6 +169,14 @@ fn handle_request(id: usize, request_message: String) -> ResResult
             fs::remove_dir_all(&workerdir).unwrap();
             fs::create_dir(&workerdir).unwrap();
             return ResResult::Result(Result{ status:Status::Failure, output: s.to_string() });
+        }
+        else if exec.stdout.len() == 0 as usize
+        {
+            println!("Resource Limit Exceeded");
+            println!("Cleaning - {}",workerdir);
+            fs::remove_dir_all(&workerdir).unwrap();
+            fs::create_dir(&workerdir).unwrap();
+            return ResResult::Result(Result{ status:Status::Failure, output: "Error executing program".to_string() });
         }
         else
         {

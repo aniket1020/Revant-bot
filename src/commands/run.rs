@@ -8,6 +8,8 @@ use serenity::framework::standard::{
     Args, CommandResult,
     macros::command,
 };
+use serenity::builder::CreateEmbed;
+use serenity::utils::Colour;
 use crate::{Pool, LANGCMP, LANGRUN};
 
 use std::thread;
@@ -210,10 +212,54 @@ pub async fn run(ctx: &Context, msg: &Message, args: Args) -> CommandResult
 
     //Not optimal - Change to a proper listener
     let result = pool.resReceiver.recv().unwrap();
+
+    let emb = CreateEmbed::default();
+
     match result
     {
-        ResResult::Result(result) => msg.channel_id.say(&ctx.http, format!("{}",result.output)).await?,
-        ResResult::InvalidCommand => msg.channel_id.say(&ctx.http, "Invalid command, use ```!help``` to view available commands").await?,
+        ResResult::Result(result) =>
+        {
+            msg.channel_id.send_message(&ctx.http, |m|
+                {
+                    m.embed(|emb|
+                        {
+                            emb.title("Result");
+                            match result.status {
+                                Status::Failure =>
+                                {
+                                    emb.color(Colour::DARK_RED);
+                                    emb.field("Status","```Failure```",false);
+                                }
+                                Status::Success =>
+                                {
+                                    emb.color(Colour::DARK_GREEN);
+                                    emb.field("Status","```Success```",false);
+                                }
+                            }
+                            emb.field("Output",format!("```{}```",result.output.to_string()),false);
+                            emb
+                        }
+                    )
+                }
+            ).await?;
+        },
+        ResResult::InvalidCommand =>
+        {
+            let emb = CreateEmbed::default();
+
+            msg.channel_id.send_message(&ctx.http, |m|
+                {
+                    m.embed(|emb|
+                        {
+                            emb.title("Result");
+                            emb.color(Colour::DARK_RED);
+                            emb.description("Use `!help` for available commands");
+                            emb
+                        }
+                    )
+                }
+            ).await?;
+        },
     };
 
     Ok(())

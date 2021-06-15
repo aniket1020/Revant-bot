@@ -4,6 +4,11 @@ Revant bot is a discord compiler bot made in Rust using Serenity discord framewo
 
 ## How to run this
 
+Run
+```
+mkdir Workers/Workerdir{0..7}
+```
+
 If you are running this locally, you can do the following
 ```
 cargo run               #To run in developement mode

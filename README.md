@@ -10,3 +10,9 @@ cargo run               #To run in developement mode
 # OR
 cargo run --release     #To run release build
 ```
+
+Add a `.env` in root folder with following format:
+```
+DISCORD_TOKEN=<DISCORD_TOKEN>
+RUST_LOG=debug
+```
